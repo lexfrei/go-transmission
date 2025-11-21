@@ -13,7 +13,7 @@ Go client library for [Transmission](https://transmissionbt.com) BitTorrent clie
 
 ## Requirements
 
-- Go 1.21 or later
+- Go 1.24 or later
 - Transmission 4.0+ (RPC version 17+)
 
 ## Installation
@@ -82,6 +82,7 @@ client, err := transmission.New(
 ## API Methods
 
 ### Torrent Actions
+
 - `TorrentStart` - Start torrents
 - `TorrentStartNow` - Start torrents immediately (bypass queue)
 - `TorrentStop` - Stop torrents
@@ -89,11 +90,13 @@ client, err := transmission.New(
 - `TorrentReannounce` - Force tracker announce
 
 ### Torrent Accessors
+
 - `TorrentGet` - Get torrent information
 - `TorrentGetByHash` - Get torrents by hash
 - `TorrentGetRecentlyActive` - Get recently active torrents
 
 ### Torrent Mutators
+
 - `TorrentSet` - Modify torrent properties
 - `TorrentAdd` - Add a new torrent
 - `TorrentRemove` - Remove torrents
@@ -101,23 +104,27 @@ client, err := transmission.New(
 - `TorrentRenamePath` - Rename files in torrent
 
 ### Session
+
 - `SessionGet` - Get session configuration
 - `SessionSet` - Modify session configuration
 - `SessionStats` - Get transfer statistics
 - `SessionClose` - Shutdown daemon
 
 ### Queue Management
+
 - `QueueMoveTop` - Move to top of queue
 - `QueueMoveUp` - Move up in queue
 - `QueueMoveDown` - Move down in queue
 - `QueueMoveBottom` - Move to bottom of queue
 
 ### System
+
 - `BlocklistUpdate` - Update IP blocklist
 - `PortTest` - Test port accessibility
 - `FreeSpace` - Check available disk space
 
 ### Bandwidth Groups
+
 - `GroupSet` - Create/modify bandwidth group
 - `GroupGet` - Get bandwidth group info
 
@@ -134,7 +141,7 @@ This project includes a complete [OpenRPC 1.3.2](https://spec.open-rpc.org/) spe
 The OpenRPC spec can be used independently from this Go library — for code generation in other languages, API documentation, or tooling integration.
 
 For official Transmission RPC documentation, see:
-https://github.com/transmission/transmission/blob/main/docs/rpc-spec.md
+<https://github.com/transmission/transmission/blob/main/docs/rpc-spec.md>
 
 ## License
 
