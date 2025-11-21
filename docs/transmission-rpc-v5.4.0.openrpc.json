@@ -1,0 +1,1789 @@
+{
+  "openrpc": "1.3.2",
+  "info": {
+    "title": "Transmission RPC API",
+    "version": "5.4.0",
+    "description": "JSON-RPC 2.0 API for Transmission BitTorrent client. This specification covers all RPC methods available in Transmission 4.1.0+ (RPC version 18).",
+    "license": {
+      "name": "MIT",
+      "url": "https://github.com/transmission/transmission/blob/main/COPYING"
+    },
+    "contact": {
+      "name": "Transmission Project",
+      "url": "https://transmissionbt.com"
+    },
+    "x-rpc-version": 18,
+    "x-rpc-version-semver": "5.4.0",
+    "x-rpc-version-minimum": 1,
+    "x-transmission-version": "4.1.0+",
+    "x-protocol": "JSON-RPC 2.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:9091/transmission/rpc",
+      "name": "Default Transmission RPC",
+      "description": "Local Transmission daemon RPC endpoint (configurable via settings)"
+    }
+  ],
+  "methods": [
+    {
+      "name": "torrent-start",
+      "summary": "Start torrents",
+      "description": "Start one or more torrents. If no IDs provided, starts all torrents.",
+      "tags": [{"name": "torrent-actions"}],
+      "params": [
+        {
+          "name": "ids",
+          "required": false,
+          "schema": {"$ref": "#/components/schemas/TorrentIds"},
+          "description": "Torrent identifiers. Omit to affect all torrents."
+        }
+      ],
+      "result": {
+        "name": "success",
+        "schema": {"type": "null"},
+        "description": "No return value on success"
+      },
+      "examples": [
+        {
+          "name": "Start specific torrents",
+          "params": [
+            {"name": "ids", "value": [1, 2, 3]}
+          ],
+          "result": {"name": "success", "value": null}
+        }
+      ]
+    },
+    {
+      "name": "torrent-start-now",
+      "summary": "Start torrents immediately",
+      "description": "Start torrents immediately, bypassing queue order.",
+      "tags": [{"name": "torrent-actions"}],
+      "params": [
+        {
+          "name": "ids",
+          "required": false,
+          "schema": {"$ref": "#/components/schemas/TorrentIds"},
+          "description": "Torrent identifiers. Omit to affect all torrents."
+        }
+      ],
+      "result": {
+        "name": "success",
+        "schema": {"type": "null"},
+        "description": "No return value on success"
+      },
+      "examples": [
+        {
+          "name": "Start torrent immediately bypassing queue",
+          "params": [
+            {"name": "ids", "value": [5]}
+          ],
+          "result": {"name": "success", "value": null}
+        }
+      ]
+    },
+    {
+      "name": "torrent-stop",
+      "summary": "Stop torrents",
+      "description": "Stop one or more torrents. If no IDs provided, stops all torrents.",
+      "tags": [{"name": "torrent-actions"}],
+      "params": [
+        {
+          "name": "ids",
+          "required": false,
+          "schema": {"$ref": "#/components/schemas/TorrentIds"},
+          "description": "Torrent identifiers. Omit to affect all torrents."
+        }
+      ],
+      "result": {
+        "name": "success",
+        "schema": {"type": "null"},
+        "description": "No return value on success"
+      },
+      "examples": [
+        {
+          "name": "Stop all torrents",
+          "params": [],
+          "result": {"name": "success", "value": null}
+        }
+      ]
+    },
+    {
+      "name": "torrent-verify",
+      "summary": "Verify torrents",
+      "description": "Verify local data integrity for one or more torrents.",
+      "tags": [{"name": "torrent-actions"}],
+      "params": [
+        {
+          "name": "ids",
+          "required": false,
+          "schema": {"$ref": "#/components/schemas/TorrentIds"},
+          "description": "Torrent identifiers. Omit to affect all torrents."
+        }
+      ],
+      "result": {
+        "name": "success",
+        "schema": {"type": "null"},
+        "description": "No return value on success"
+      },
+      "examples": [
+        {
+          "name": "Verify torrent data",
+          "params": [
+            {"name": "ids", "value": [1]}
+          ],
+          "result": {"name": "success", "value": null}
+        }
+      ]
+    },
+    {
+      "name": "torrent-reannounce",
+      "summary": "Reannounce torrents to trackers",
+      "description": "Immediately announce torrents to their trackers.",
+      "tags": [{"name": "torrent-actions"}],
+      "params": [
+        {
+          "name": "ids",
+          "required": false,
+          "schema": {"$ref": "#/components/schemas/TorrentIds"},
+          "description": "Torrent identifiers. Omit to affect all torrents."
+        }
+      ],
+      "result": {
+        "name": "success",
+        "schema": {"type": "null"},
+        "description": "No return value on success"
+      },
+      "examples": [
+        {
+          "name": "Force tracker announce",
+          "params": [
+            {"name": "ids", "value": ["hash123abc"]}
+          ],
+          "result": {"name": "success", "value": null}
+        }
+      ]
+    },
+    {
+      "name": "torrent-set",
+      "summary": "Modify torrent properties",
+      "description": "Set properties for one or more torrents. Only provided fields will be changed.",
+      "tags": [{"name": "torrent-mutators"}],
+      "params": [
+        {
+          "name": "ids",
+          "required": true,
+          "schema": {"$ref": "#/components/schemas/TorrentIds"},
+          "description": "Torrent identifiers"
+        },
+        {
+          "name": "bandwidthPriority",
+          "required": false,
+          "schema": {"type": "integer"},
+          "description": "Priority for bandwidth allocation (-1=low, 0=normal, 1=high)"
+        },
+        {
+          "name": "downloadLimit",
+          "required": false,
+          "schema": {"type": "integer"},
+          "description": "Maximum download speed in kB/s"
+        },
+        {
+          "name": "downloadLimited",
+          "required": false,
+          "schema": {"type": "boolean"},
+          "description": "Enable download speed limit"
+        },
+        {
+          "name": "files-unwanted",
+          "required": false,
+          "schema": {"type": "array", "items": {"type": "integer"}},
+          "description": "Array of file indices to mark as unwanted"
+        },
+        {
+          "name": "files-wanted",
+          "required": false,
+          "schema": {"type": "array", "items": {"type": "integer"}},
+          "description": "Array of file indices to mark as wanted"
+        },
+        {
+          "name": "group",
+          "required": false,
+          "schema": {"type": "string"},
+          "description": "Bandwidth group name"
+        },
+        {
+          "name": "honorsSessionLimits",
+          "required": false,
+          "schema": {"type": "boolean"},
+          "description": "Honor session bandwidth limits"
+        },
+        {
+          "name": "labels",
+          "required": false,
+          "schema": {"type": "array", "items": {"type": "string"}},
+          "description": "Array of label strings"
+        },
+        {
+          "name": "location",
+          "required": false,
+          "schema": {"type": "string"},
+          "description": "New download directory path"
+        },
+        {
+          "name": "peer-limit",
+          "required": false,
+          "schema": {"type": "integer"},
+          "description": "Maximum number of peers"
+        },
+        {
+          "name": "priority-high",
+          "required": false,
+          "schema": {"type": "array", "items": {"type": "integer"}},
+          "description": "File indices to set high priority"
+        },
+        {
+          "name": "priority-low",
+          "required": false,
+          "schema": {"type": "array", "items": {"type": "integer"}},
+          "description": "File indices to set low priority"
+        },
+        {
+          "name": "priority-normal",
+          "required": false,
+          "schema": {"type": "array", "items": {"type": "integer"}},
+          "description": "File indices to set normal priority"
+        },
+        {
+          "name": "queuePosition",
+          "required": false,
+          "schema": {"type": "integer"},
+          "description": "Position in queue"
+        },
+        {
+          "name": "seedIdleLimit",
+          "required": false,
+          "schema": {"type": "integer"},
+          "description": "Idle seeding limit in minutes"
+        },
+        {
+          "name": "seedIdleMode",
+          "required": false,
+          "schema": {"type": "integer"},
+          "description": "Seed idle mode (0=global, 1=single, 2=unlimited)"
+        },
+        {
+          "name": "seedRatioLimit",
+          "required": false,
+          "schema": {"type": "number"},
+          "description": "Seed ratio limit"
+        },
+        {
+          "name": "seedRatioMode",
+          "required": false,
+          "schema": {"type": "integer"},
+          "description": "Seed ratio mode (0=global, 1=single, 2=unlimited)"
+        },
+        {
+          "name": "sequential_download",
+          "required": false,
+          "schema": {"type": "boolean"},
+          "description": "Enable sequential downloading"
+        },
+        {
+          "name": "sequential_download_from_piece",
+          "required": false,
+          "schema": {"type": "integer"},
+          "description": "Starting piece for sequential download"
+        },
+        {
+          "name": "trackerList",
+          "required": false,
+          "schema": {"type": "string"},
+          "description": "Newline-delimited list of tracker URLs"
+        },
+        {
+          "name": "uploadLimit",
+          "required": false,
+          "schema": {"type": "integer"},
+          "description": "Maximum upload speed in kB/s"
+        },
+        {
+          "name": "uploadLimited",
+          "required": false,
+          "schema": {"type": "boolean"},
+          "description": "Enable upload speed limit"
+        }
+      ],
+      "result": {
+        "name": "success",
+        "schema": {"type": "null"},
+        "description": "No return value on success"
+      },
+      "examples": [
+        {
+          "name": "Set download limit",
+          "params": [
+            {"name": "ids", "value": [1]},
+            {"name": "downloadLimit", "value": 500},
+            {"name": "downloadLimited", "value": true}
+          ],
+          "result": {"name": "success", "value": null}
+        }
+      ]
+    },
+    {
+      "name": "torrent-get",
+      "summary": "Get torrent information",
+      "description": "Retrieve information about one or more torrents. Use 'recently-active' to get torrents active since last call.",
+      "tags": [{"name": "torrent-accessors"}],
+      "params": [
+        {
+          "name": "ids",
+          "required": false,
+          "schema": {"$ref": "#/components/schemas/TorrentIds"},
+          "description": "Torrent identifiers. Use 'recently-active' for recent activity. Omit for all torrents."
+        },
+        {
+          "name": "fields",
+          "required": true,
+          "schema": {
+            "type": "array",
+            "items": {"type": "string"}
+          },
+          "description": "Array of field names to retrieve (see TorrentFields schema for available fields)"
+        },
+        {
+          "name": "format",
+          "required": false,
+          "schema": {"$ref": "#/components/schemas/TorrentGetFormat"},
+          "description": "Response format: 'objects' (default) or 'table'"
+        }
+      ],
+      "result": {
+        "name": "torrent-info",
+        "schema": {"$ref": "#/components/schemas/TorrentGetResult"},
+        "description": "Torrent information"
+      },
+      "examples": [
+        {
+          "name": "Get basic torrent info",
+          "params": [
+            {"name": "fields", "value": ["id", "name", "status", "percentDone"]}
+          ],
+          "result": {
+            "name": "torrent-info",
+            "value": {
+              "torrents": [
+                {
+                  "id": 1,
+                  "name": "ubuntu-23.10-desktop-amd64.iso",
+                  "status": 6,
+                  "percentDone": 1.0
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get recently active torrents",
+          "params": [
+            {"name": "ids", "value": "recently-active"},
+            {"name": "fields", "value": ["id", "name", "rateDownload", "rateUpload"]}
+          ],
+          "result": {
+            "name": "torrent-info",
+            "value": {
+              "torrents": [
+                {
+                  "id": 2,
+                  "name": "example.torrent",
+                  "rateDownload": 524288,
+                  "rateUpload": 131072
+                }
+              ],
+              "removed": [5, 7]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "torrent-add",
+      "summary": "Add a torrent",
+      "description": "Add a new torrent from file path, URL, or metainfo (base64-encoded .torrent content).",
+      "tags": [{"name": "torrent-mutators"}],
+      "params": [
+        {
+          "name": "filename",
+          "required": false,
+          "schema": {"type": "string"},
+          "description": "Torrent file path or magnet/URL (required if metainfo not provided)"
+        },
+        {
+          "name": "metainfo",
+          "required": false,
+          "schema": {"type": "string"},
+          "description": "Base64-encoded .torrent file content (required if filename not provided)"
+        },
+        {
+          "name": "download-dir",
+          "required": false,
+          "schema": {"type": "string"},
+          "description": "Download directory path"
+        },
+        {
+          "name": "cookies",
+          "required": false,
+          "schema": {"type": "string"},
+          "description": "HTTP cookies for URL downloads (format: NAME=CONTENTS)"
+        },
+        {
+          "name": "paused",
+          "required": false,
+          "schema": {"type": "boolean"},
+          "description": "Add torrent paused"
+        },
+        {
+          "name": "peer-limit",
+          "required": false,
+          "schema": {"type": "integer"},
+          "description": "Maximum number of peers"
+        },
+        {
+          "name": "bandwidthPriority",
+          "required": false,
+          "schema": {"type": "integer"},
+          "description": "Bandwidth priority (-1=low, 0=normal, 1=high)"
+        },
+        {
+          "name": "labels",
+          "required": false,
+          "schema": {"type": "array", "items": {"type": "string"}},
+          "description": "Array of label strings"
+        },
+        {
+          "name": "files-wanted",
+          "required": false,
+          "schema": {"type": "array", "items": {"type": "integer"}},
+          "description": "File indices to download"
+        },
+        {
+          "name": "files-unwanted",
+          "required": false,
+          "schema": {"type": "array", "items": {"type": "integer"}},
+          "description": "File indices to skip"
+        },
+        {
+          "name": "priority-high",
+          "required": false,
+          "schema": {"type": "array", "items": {"type": "integer"}},
+          "description": "File indices for high priority"
+        },
+        {
+          "name": "priority-low",
+          "required": false,
+          "schema": {"type": "array", "items": {"type": "integer"}},
+          "description": "File indices for low priority"
+        },
+        {
+          "name": "priority-normal",
+          "required": false,
+          "schema": {"type": "array", "items": {"type": "integer"}},
+          "description": "File indices for normal priority"
+        },
+        {
+          "name": "sequential_download",
+          "required": false,
+          "schema": {"type": "boolean"},
+          "description": "Enable sequential downloading"
+        },
+        {
+          "name": "sequential_download_from_piece",
+          "required": false,
+          "schema": {"type": "integer"},
+          "description": "Starting piece for sequential download"
+        }
+      ],
+      "result": {
+        "name": "torrent-added-result",
+        "schema": {"$ref": "#/components/schemas/TorrentAddResult"},
+        "description": "Information about added or duplicate torrent"
+      },
+      "examples": [
+        {
+          "name": "Add torrent from magnet link",
+          "params": [
+            {"name": "filename", "value": "magnet:?xt=urn:btih:example"}
+          ],
+          "result": {
+            "name": "torrent-added-result",
+            "value": {
+              "torrent-added": {
+                "id": 10,
+                "name": "Example Torrent",
+                "hashString": "abc123def456"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "torrent-remove",
+      "summary": "Remove torrents",
+      "description": "Remove one or more torrents from Transmission, optionally deleting local data.",
+      "tags": [{"name": "torrent-mutators"}],
+      "params": [
+        {
+          "name": "ids",
+          "required": true,
+          "schema": {"$ref": "#/components/schemas/TorrentIds"},
+          "description": "Torrent identifiers"
+        },
+        {
+          "name": "delete-local-data",
+          "required": false,
+          "schema": {"type": "boolean", "default": false},
+          "description": "Delete downloaded files from disk"
+        }
+      ],
+      "result": {
+        "name": "success",
+        "schema": {"type": "null"},
+        "description": "No return value on success"
+      },
+      "examples": [
+        {
+          "name": "Remove torrent and delete files",
+          "params": [
+            {"name": "ids", "value": [3]},
+            {"name": "delete-local-data", "value": true}
+          ],
+          "result": {"name": "success", "value": null}
+        }
+      ]
+    },
+    {
+      "name": "torrent-set-location",
+      "summary": "Set torrent location",
+      "description": "Move torrent data to a new location or update the download directory path.",
+      "tags": [{"name": "torrent-operations"}],
+      "params": [
+        {
+          "name": "ids",
+          "required": true,
+          "schema": {"$ref": "#/components/schemas/TorrentIds"},
+          "description": "Torrent identifiers"
+        },
+        {
+          "name": "location",
+          "required": true,
+          "schema": {"type": "string"},
+          "description": "New download directory path"
+        },
+        {
+          "name": "move",
+          "required": false,
+          "schema": {"type": "boolean", "default": false},
+          "description": "Move files (true) or just update path (false)"
+        }
+      ],
+      "result": {
+        "name": "success",
+        "schema": {"type": "null"},
+        "description": "No return value on success"
+      },
+      "examples": [
+        {
+          "name": "Move torrent to new location",
+          "params": [
+            {"name": "ids", "value": [1]},
+            {"name": "location", "value": "/mnt/storage/torrents"},
+            {"name": "move", "value": true}
+          ],
+          "result": {"name": "success", "value": null}
+        }
+      ]
+    },
+    {
+      "name": "torrent-rename-path",
+      "summary": "Rename torrent file or directory",
+      "description": "Rename a file or directory within a torrent. Only one torrent can be processed at a time.",
+      "tags": [{"name": "torrent-operations"}],
+      "params": [
+        {
+          "name": "ids",
+          "required": true,
+          "schema": {"type": "integer"},
+          "description": "Single torrent ID (only one allowed)"
+        },
+        {
+          "name": "path",
+          "required": true,
+          "schema": {"type": "string"},
+          "description": "Current file or directory path"
+        },
+        {
+          "name": "name",
+          "required": true,
+          "schema": {"type": "string"},
+          "description": "New name"
+        }
+      ],
+      "result": {
+        "name": "rename-result",
+        "schema": {"$ref": "#/components/schemas/TorrentRenameResult"},
+        "description": "Rename confirmation"
+      },
+      "examples": [
+        {
+          "name": "Rename torrent file",
+          "params": [
+            {"name": "ids", "value": 1},
+            {"name": "path", "value": "old-name.txt"},
+            {"name": "name", "value": "new-name.txt"}
+          ],
+          "result": {
+            "name": "rename-result",
+            "value": {
+              "path": "old-name.txt",
+              "name": "new-name.txt",
+              "id": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "session-set",
+      "summary": "Set session configuration",
+      "description": "Modify Transmission session settings. Only provided fields will be changed.",
+      "tags": [{"name": "session-config"}],
+      "params": [
+        {
+          "name": "alt-speed-down",
+          "required": false,
+          "schema": {"type": "integer"},
+          "description": "Alternate download speed limit in kB/s"
+        },
+        {
+          "name": "alt-speed-enabled",
+          "required": false,
+          "schema": {"type": "boolean"},
+          "description": "Enable alternate speed limits"
+        },
+        {
+          "name": "alt-speed-time-begin",
+          "required": false,
+          "schema": {"type": "integer"},
+          "description": "Start time for alternate speeds (minutes since midnight)"
+        },
+        {
+          "name": "alt-speed-time-day",
+          "required": false,
+          "schema": {"type": "integer"},
+          "description": "Days for alternate speeds (bitfield: Sun=1, Mon=2, Tue=4, etc.)"
+        },
+        {
+          "name": "alt-speed-time-enabled",
+          "required": false,
+          "schema": {"type": "boolean"},
+          "description": "Enable scheduled alternate speeds"
+        },
+        {
+          "name": "alt-speed-time-end",
+          "required": false,
+          "schema": {"type": "integer"},
+          "description": "End time for alternate speeds (minutes since midnight)"
+        },
+        {
+          "name": "alt-speed-up",
+          "required": false,
+          "schema": {"type": "integer"},
+          "description": "Alternate upload speed limit in kB/s"
+        },
+        {
+          "name": "blocklist-enabled",
+          "required": false,
+          "schema": {"type": "boolean"},
+          "description": "Enable IP blocklist"
+        },
+        {
+          "name": "blocklist-url",
+          "required": false,
+          "schema": {"type": "string", "format": "uri"},
+          "description": "Blocklist URL"
+        },
+        {
+          "name": "cache-size-mb",
+          "required": false,
+          "schema": {"type": "integer"},
+          "description": "Disk cache size in MB"
+        },
+        {
+          "name": "default-trackers",
+          "required": false,
+          "schema": {"type": "string"},
+          "description": "Default trackers (newline-delimited)"
+        },
+        {
+          "name": "dht-enabled",
+          "required": false,
+          "schema": {"type": "boolean"},
+          "description": "Enable DHT"
+        },
+        {
+          "name": "download-dir",
+          "required": false,
+          "schema": {"type": "string"},
+          "description": "Default download directory"
+        },
+        {
+          "name": "download-queue-enabled",
+          "required": false,
+          "schema": {"type": "boolean"},
+          "description": "Enable download queue"
+        },
+        {
+          "name": "download-queue-size",
+          "required": false,
+          "schema": {"type": "integer"},
+          "description": "Maximum number of simultaneous downloads"
+        },
+        {
+          "name": "encryption",
+          "required": false,
+          "schema": {"$ref": "#/components/schemas/EncryptionMode"},
+          "description": "Peer encryption mode"
+        },
+        {
+          "name": "idle-seeding-limit-enabled",
+          "required": false,
+          "schema": {"type": "boolean"},
+          "description": "Enable idle seeding limit"
+        },
+        {
+          "name": "idle-seeding-limit",
+          "required": false,
+          "schema": {"type": "integer"},
+          "description": "Idle seeding limit in minutes"
+        },
+        {
+          "name": "incomplete-dir-enabled",
+          "required": false,
+          "schema": {"type": "boolean"},
+          "description": "Use separate directory for incomplete files"
+        },
+        {
+          "name": "incomplete-dir",
+          "required": false,
+          "schema": {"type": "string"},
+          "description": "Incomplete files directory"
+        },
+        {
+          "name": "lpd-enabled",
+          "required": false,
+          "schema": {"type": "boolean"},
+          "description": "Enable Local Peer Discovery"
+        },
+        {
+          "name": "peer-limit-global",
+          "required": false,
+          "schema": {"type": "integer"},
+          "description": "Global peer limit"
+        },
+        {
+          "name": "peer-limit-per-torrent",
+          "required": false,
+          "schema": {"type": "integer"},
+          "description": "Per-torrent peer limit"
+        },
+        {
+          "name": "peer-port-random-on-start",
+          "required": false,
+          "schema": {"type": "boolean"},
+          "description": "Randomize peer port on start"
+        },
+        {
+          "name": "peer-port",
+          "required": false,
+          "schema": {"type": "integer"},
+          "description": "Peer port number"
+        },
+        {
+          "name": "pex-enabled",
+          "required": false,
+          "schema": {"type": "boolean"},
+          "description": "Enable Peer Exchange"
+        },
+        {
+          "name": "port-forwarding-enabled",
+          "required": false,
+          "schema": {"type": "boolean"},
+          "description": "Enable port forwarding (UPnP/NAT-PMP)"
+        },
+        {
+          "name": "preferred_transports",
+          "required": false,
+          "schema": {"type": "array", "items": {"type": "string"}},
+          "description": "Preferred transports (e.g., ['uTP', 'TCP'])"
+        },
+        {
+          "name": "queue-stalled-enabled",
+          "required": false,
+          "schema": {"type": "boolean"},
+          "description": "Enable stalled torrent queue handling"
+        },
+        {
+          "name": "queue-stalled-minutes",
+          "required": false,
+          "schema": {"type": "integer"},
+          "description": "Minutes before torrent is considered stalled"
+        },
+        {
+          "name": "rename-partial-files",
+          "required": false,
+          "schema": {"type": "boolean"},
+          "description": "Append '.part' to incomplete files"
+        },
+        {
+          "name": "reqq",
+          "required": false,
+          "schema": {"type": "integer"},
+          "description": "Request queue size"
+        },
+        {
+          "name": "script-torrent-added-enabled",
+          "required": false,
+          "schema": {"type": "boolean"},
+          "description": "Enable torrent-added script"
+        },
+        {
+          "name": "script-torrent-added-filename",
+          "required": false,
+          "schema": {"type": "string"},
+          "description": "Torrent-added script path"
+        },
+        {
+          "name": "script-torrent-done-enabled",
+          "required": false,
+          "schema": {"type": "boolean"},
+          "description": "Enable torrent-done script"
+        },
+        {
+          "name": "script-torrent-done-filename",
+          "required": false,
+          "schema": {"type": "string"},
+          "description": "Torrent-done script path"
+        },
+        {
+          "name": "script-torrent-done-seeding-enabled",
+          "required": false,
+          "schema": {"type": "boolean"},
+          "description": "Enable torrent-done-seeding script"
+        },
+        {
+          "name": "script-torrent-done-seeding-filename",
+          "required": false,
+          "schema": {"type": "string"},
+          "description": "Torrent-done-seeding script path"
+        },
+        {
+          "name": "seed-queue-enabled",
+          "required": false,
+          "schema": {"type": "boolean"},
+          "description": "Enable seed queue"
+        },
+        {
+          "name": "seed-queue-size",
+          "required": false,
+          "schema": {"type": "integer"},
+          "description": "Maximum number of simultaneous seeds"
+        },
+        {
+          "name": "seedRatioLimit",
+          "required": false,
+          "schema": {"type": "number"},
+          "description": "Global seed ratio limit"
+        },
+        {
+          "name": "seedRatioLimited",
+          "required": false,
+          "schema": {"type": "boolean"},
+          "description": "Enable global seed ratio limit"
+        },
+        {
+          "name": "sequential_download",
+          "required": false,
+          "schema": {"type": "boolean"},
+          "description": "Enable sequential downloading by default"
+        },
+        {
+          "name": "speed-limit-down-enabled",
+          "required": false,
+          "schema": {"type": "boolean"},
+          "description": "Enable download speed limit"
+        },
+        {
+          "name": "speed-limit-down",
+          "required": false,
+          "schema": {"type": "integer"},
+          "description": "Download speed limit in kB/s"
+        },
+        {
+          "name": "speed-limit-up-enabled",
+          "required": false,
+          "schema": {"type": "boolean"},
+          "description": "Enable upload speed limit"
+        },
+        {
+          "name": "speed-limit-up",
+          "required": false,
+          "schema": {"type": "integer"},
+          "description": "Upload speed limit in kB/s"
+        },
+        {
+          "name": "start-added-torrents",
+          "required": false,
+          "schema": {"type": "boolean"},
+          "description": "Automatically start added torrents"
+        },
+        {
+          "name": "trash-original-torrent-files",
+          "required": false,
+          "schema": {"type": "boolean"},
+          "description": "Delete original torrent files after adding"
+        }
+      ],
+      "result": {
+        "name": "success",
+        "schema": {"type": "null"},
+        "description": "No return value on success"
+      },
+      "examples": [
+        {
+          "name": "Enable alternate speed limits",
+          "params": [
+            {"name": "alt-speed-enabled", "value": true},
+            {"name": "alt-speed-down", "value": 500},
+            {"name": "alt-speed-up", "value": 100}
+          ],
+          "result": {"name": "success", "value": null}
+        }
+      ]
+    },
+    {
+      "name": "session-get",
+      "summary": "Get session configuration",
+      "description": "Retrieve current session settings and information. If fields parameter is omitted, all fields are returned.",
+      "tags": [{"name": "session-info"}],
+      "params": [
+        {
+          "name": "fields",
+          "required": false,
+          "schema": {"type": "array", "items": {"type": "string"}},
+          "description": "Specific fields to retrieve. Omit for all fields."
+        }
+      ],
+      "result": {
+        "name": "session-info",
+        "schema": {"$ref": "#/components/schemas/SessionInfo"},
+        "description": "Session configuration and information"
+      },
+      "examples": [
+        {
+          "name": "Get all session info",
+          "params": [],
+          "result": {
+            "name": "session-info",
+            "value": {
+              "version": "4.1.0",
+              "rpc-version": 18,
+              "rpc-version-semver": "5.4.0",
+              "download-dir": "/var/lib/transmission/downloads",
+              "peer-port": 51413
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "session-stats",
+      "summary": "Get session statistics",
+      "description": "Retrieve transfer statistics for current and cumulative sessions.",
+      "tags": [{"name": "session-info"}],
+      "params": [],
+      "result": {
+        "name": "session-stats",
+        "schema": {"$ref": "#/components/schemas/SessionStats"},
+        "description": "Session statistics"
+      },
+      "examples": [
+        {
+          "name": "Get session stats",
+          "params": [],
+          "result": {
+            "name": "session-stats",
+            "value": {
+              "activeTorrentCount": 5,
+              "downloadSpeed": 1048576,
+              "uploadSpeed": 524288,
+              "pausedTorrentCount": 2,
+              "torrentCount": 7,
+              "current-stats": {
+                "uploadedBytes": 10737418240,
+                "downloadedBytes": 5368709120,
+                "filesAdded": 15,
+                "sessionCount": 1,
+                "secondsActive": 3600
+              },
+              "cumulative-stats": {
+                "uploadedBytes": 107374182400,
+                "downloadedBytes": 53687091200,
+                "filesAdded": 150,
+                "sessionCount": 42,
+                "secondsActive": 864000
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "blocklist-update",
+      "summary": "Update IP blocklist",
+      "description": "Download and apply the latest IP blocklist from configured URL.",
+      "tags": [{"name": "system"}],
+      "params": [],
+      "result": {
+        "name": "blocklist-size",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "blocklist-size": {"type": "integer", "description": "Number of blocked IP ranges"}
+          },
+          "required": ["blocklist-size"]
+        },
+        "description": "Updated blocklist size"
+      },
+      "examples": [
+        {
+          "name": "Update blocklist",
+          "params": [],
+          "result": {
+            "name": "blocklist-size",
+            "value": {"blocklist-size": 123456}
+          }
+        }
+      ]
+    },
+    {
+      "name": "port-test",
+      "summary": "Test peer port accessibility",
+      "description": "Test whether the peer port is accessible from the internet.",
+      "tags": [{"name": "system"}],
+      "params": [
+        {
+          "name": "ip_protocol",
+          "required": false,
+          "schema": {"$ref": "#/components/schemas/IpProtocol"},
+          "description": "IP protocol to test (ipv4 or ipv6)"
+        }
+      ],
+      "result": {
+        "name": "port-test-result",
+        "schema": {"$ref": "#/components/schemas/PortTestResult"},
+        "description": "Port accessibility result"
+      },
+      "examples": [
+        {
+          "name": "Test IPv4 port",
+          "params": [
+            {"name": "ip_protocol", "value": "ipv4"}
+          ],
+          "result": {
+            "name": "port-test-result",
+            "value": {
+              "port-is-open": true,
+              "ip_protocol": "ipv4"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "session-close",
+      "summary": "Close session",
+      "description": "Gracefully shutdown the Transmission daemon.",
+      "tags": [{"name": "session-config"}],
+      "params": [],
+      "result": {
+        "name": "success",
+        "schema": {"type": "null"},
+        "description": "No return value on success"
+      },
+      "examples": [
+        {
+          "name": "Shutdown daemon",
+          "params": [],
+          "result": {"name": "success", "value": null}
+        }
+      ]
+    },
+    {
+      "name": "queue-move-top",
+      "summary": "Move torrents to top of queue",
+      "description": "Move one or more torrents to the top of the queue.",
+      "tags": [{"name": "queue"}],
+      "params": [
+        {
+          "name": "ids",
+          "required": true,
+          "schema": {"$ref": "#/components/schemas/TorrentIds"},
+          "description": "Torrent identifiers"
+        }
+      ],
+      "result": {
+        "name": "success",
+        "schema": {"type": "null"},
+        "description": "No return value on success"
+      },
+      "examples": [
+        {
+          "name": "Move to top",
+          "params": [
+            {"name": "ids", "value": [3, 5]}
+          ],
+          "result": {"name": "success", "value": null}
+        }
+      ]
+    },
+    {
+      "name": "queue-move-up",
+      "summary": "Move torrents up in queue",
+      "description": "Move one or more torrents up one position in the queue.",
+      "tags": [{"name": "queue"}],
+      "params": [
+        {
+          "name": "ids",
+          "required": true,
+          "schema": {"$ref": "#/components/schemas/TorrentIds"},
+          "description": "Torrent identifiers"
+        }
+      ],
+      "result": {
+        "name": "success",
+        "schema": {"type": "null"},
+        "description": "No return value on success"
+      },
+      "examples": [
+        {
+          "name": "Move up",
+          "params": [
+            {"name": "ids", "value": [2]}
+          ],
+          "result": {"name": "success", "value": null}
+        }
+      ]
+    },
+    {
+      "name": "queue-move-down",
+      "summary": "Move torrents down in queue",
+      "description": "Move one or more torrents down one position in the queue.",
+      "tags": [{"name": "queue"}],
+      "params": [
+        {
+          "name": "ids",
+          "required": true,
+          "schema": {"$ref": "#/components/schemas/TorrentIds"},
+          "description": "Torrent identifiers"
+        }
+      ],
+      "result": {
+        "name": "success",
+        "schema": {"type": "null"},
+        "description": "No return value on success"
+      },
+      "examples": [
+        {
+          "name": "Move down",
+          "params": [
+            {"name": "ids", "value": [4]}
+          ],
+          "result": {"name": "success", "value": null}
+        }
+      ]
+    },
+    {
+      "name": "queue-move-bottom",
+      "summary": "Move torrents to bottom of queue",
+      "description": "Move one or more torrents to the bottom of the queue.",
+      "tags": [{"name": "queue"}],
+      "params": [
+        {
+          "name": "ids",
+          "required": true,
+          "schema": {"$ref": "#/components/schemas/TorrentIds"},
+          "description": "Torrent identifiers"
+        }
+      ],
+      "result": {
+        "name": "success",
+        "schema": {"type": "null"},
+        "description": "No return value on success"
+      },
+      "examples": [
+        {
+          "name": "Move to bottom",
+          "params": [
+            {"name": "ids", "value": [1, 2]}
+          ],
+          "result": {"name": "success", "value": null}
+        }
+      ]
+    },
+    {
+      "name": "free-space",
+      "summary": "Get free disk space",
+      "description": "Check available free space in a directory.",
+      "tags": [{"name": "system"}],
+      "params": [
+        {
+          "name": "path",
+          "required": true,
+          "schema": {"type": "string"},
+          "description": "Directory path to check"
+        }
+      ],
+      "result": {
+        "name": "free-space-info",
+        "schema": {"$ref": "#/components/schemas/FreeSpaceResult"},
+        "description": "Free space information"
+      },
+      "examples": [
+        {
+          "name": "Check download directory space",
+          "params": [
+            {"name": "path", "value": "/var/lib/transmission/downloads"}
+          ],
+          "result": {
+            "name": "free-space-info",
+            "value": {
+              "path": "/var/lib/transmission/downloads",
+              "size-bytes": 107374182400,
+              "total_size": 1099511627776
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "group-set",
+      "summary": "Set bandwidth group properties",
+      "description": "Create or modify a bandwidth group configuration.",
+      "tags": [{"name": "bandwidth-groups"}],
+      "params": [
+        {
+          "name": "name",
+          "required": true,
+          "schema": {"type": "string"},
+          "description": "Bandwidth group name"
+        },
+        {
+          "name": "honorsSessionLimits",
+          "required": false,
+          "schema": {"type": "boolean"},
+          "description": "Honor session bandwidth limits"
+        },
+        {
+          "name": "speed-limit-down-enabled",
+          "required": false,
+          "schema": {"type": "boolean"},
+          "description": "Enable download speed limit"
+        },
+        {
+          "name": "speed-limit-down",
+          "required": false,
+          "schema": {"type": "integer"},
+          "description": "Download speed limit in kB/s"
+        },
+        {
+          "name": "speed-limit-up-enabled",
+          "required": false,
+          "schema": {"type": "boolean"},
+          "description": "Enable upload speed limit"
+        },
+        {
+          "name": "speed-limit-up",
+          "required": false,
+          "schema": {"type": "integer"},
+          "description": "Upload speed limit in kB/s"
+        }
+      ],
+      "result": {
+        "name": "success",
+        "schema": {"type": "null"},
+        "description": "No return value on success"
+      },
+      "examples": [
+        {
+          "name": "Create bandwidth group",
+          "params": [
+            {"name": "name", "value": "low-priority"},
+            {"name": "speed-limit-down-enabled", "value": true},
+            {"name": "speed-limit-down", "value": 100}
+          ],
+          "result": {"name": "success", "value": null}
+        }
+      ]
+    },
+    {
+      "name": "group-get",
+      "summary": "Get bandwidth group information",
+      "description": "Retrieve information about one or more bandwidth groups. Omit group parameter for all groups.",
+      "tags": [{"name": "bandwidth-groups"}],
+      "params": [
+        {
+          "name": "group",
+          "required": false,
+          "schema": {
+            "oneOf": [
+              {"type": "string"},
+              {"type": "array", "items": {"type": "string"}}
+            ]
+          },
+          "description": "Group name or array of names. Omit for all groups."
+        }
+      ],
+      "result": {
+        "name": "bandwidth-groups",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "group": {
+              "type": "array",
+              "items": {"$ref": "#/components/schemas/BandwidthGroup"}
+            }
+          },
+          "required": ["group"]
+        },
+        "description": "Bandwidth group information"
+      },
+      "examples": [
+        {
+          "name": "Get all bandwidth groups",
+          "params": [],
+          "result": {
+            "name": "bandwidth-groups",
+            "value": {
+              "group": [
+                {
+                  "name": "low-priority",
+                  "honorsSessionLimits": true,
+                  "speed-limit-down-enabled": true,
+                  "speed-limit-down": 100,
+                  "speed-limit-up-enabled": false,
+                  "speed-limit-up": 0
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "components": {
+    "schemas": {
+      "TorrentIds": {
+        "oneOf": [
+          {"type": "array", "items": {"type": "integer"}, "description": "Array of torrent IDs"},
+          {"type": "array", "items": {"type": "string"}, "description": "Array of torrent hash strings"},
+          {"type": "string", "enum": ["recently-active"], "description": "Special value for recently active torrents"}
+        ],
+        "description": "Torrent identifiers: numeric IDs, hash strings, or 'recently-active'"
+      },
+      "TorrentStatus": {
+        "type": "integer",
+        "enum": [0, 1, 2, 3, 4, 5, 6],
+        "description": "Torrent status: 0=Stopped, 1=Verify queued, 2=Verifying, 3=Download queued, 4=Downloading, 5=Seed queued, 6=Seeding"
+      },
+      "EncryptionMode": {
+        "type": "string",
+        "enum": ["required", "preferred", "tolerated"],
+        "description": "Peer encryption mode"
+      },
+      "IpProtocol": {
+        "type": "string",
+        "enum": ["ipv4", "ipv6"],
+        "description": "IP protocol version"
+      },
+      "TorrentGetFormat": {
+        "type": "string",
+        "enum": ["objects", "table"],
+        "default": "objects",
+        "description": "Response format for torrent-get"
+      },
+      "FileObject": {
+        "type": "object",
+        "properties": {
+          "bytesCompleted": {"type": "integer", "description": "Bytes downloaded"},
+          "length": {"type": "integer", "description": "File size in bytes"},
+          "name": {"type": "string", "description": "File path"},
+          "begin_piece": {"type": "integer", "description": "First piece index"},
+          "end_piece": {"type": "integer", "description": "Last piece index"}
+        },
+        "required": ["bytesCompleted", "length", "name"]
+      },
+      "FileStats": {
+        "type": "object",
+        "properties": {
+          "bytesCompleted": {"type": "integer"},
+          "wanted": {"type": "boolean"},
+          "priority": {"type": "integer", "description": "-1=low, 0=normal, 1=high"}
+        },
+        "required": ["bytesCompleted", "wanted", "priority"]
+      },
+      "Peer": {
+        "type": "object",
+        "properties": {
+          "address": {"type": "string", "description": "IP address"},
+          "bytes_to_client": {"type": "integer"},
+          "bytes_to_peer": {"type": "integer"},
+          "clientName": {"type": "string"},
+          "clientIsChoked": {"type": "boolean"},
+          "clientIsInterested": {"type": "boolean"},
+          "flagStr": {"type": "string"},
+          "isDownloadingFrom": {"type": "boolean"},
+          "isEncrypted": {"type": "boolean"},
+          "isIncoming": {"type": "boolean"},
+          "isUploadingTo": {"type": "boolean"},
+          "isUTP": {"type": "boolean"},
+          "peerIsChoked": {"type": "boolean"},
+          "peerIsInterested": {"type": "boolean"},
+          "peer_id": {"type": "string"},
+          "port": {"type": "integer"},
+          "progress": {"type": "number", "minimum": 0, "maximum": 1},
+          "rateToClient": {"type": "integer", "description": "Bytes per second"},
+          "rateToPeer": {"type": "integer", "description": "Bytes per second"}
+        }
+      },
+      "PeersFrom": {
+        "type": "object",
+        "properties": {
+          "fromCache": {"type": "integer"},
+          "fromDht": {"type": "integer"},
+          "fromIncoming": {"type": "integer"},
+          "fromLpd": {"type": "integer"},
+          "fromLtep": {"type": "integer"},
+          "fromPex": {"type": "integer"},
+          "fromTracker": {"type": "integer"}
+        }
+      },
+      "Tracker": {
+        "type": "object",
+        "properties": {
+          "announce": {"type": "string", "format": "uri"},
+          "id": {"type": "integer"},
+          "scrape": {"type": "string", "format": "uri"},
+          "sitename": {"type": "string"},
+          "tier": {"type": "integer"}
+        },
+        "required": ["announce", "id", "tier"]
+      },
+      "TrackerStats": {
+        "type": "object",
+        "properties": {
+          "announce": {"type": "string"},
+          "announceState": {"type": "integer"},
+          "downloadCount": {"type": "integer"},
+          "downloader_count": {"type": "integer"},
+          "hasAnnounced": {"type": "boolean"},
+          "hasScraped": {"type": "boolean"},
+          "host": {"type": "string"},
+          "id": {"type": "integer"},
+          "isBackup": {"type": "boolean"},
+          "lastAnnounceTime": {"type": "integer", "description": "Unix timestamp"},
+          "lastAnnouncePeerCount": {"type": "integer"},
+          "lastAnnounceResult": {"type": "string"},
+          "lastAnnounceStartTime": {"type": "integer"},
+          "lastAnnounceSucceeded": {"type": "boolean"},
+          "lastAnnounceTimedOut": {"type": "boolean"},
+          "lastScrapeTime": {"type": "integer"},
+          "lastScrapeResult": {"type": "string"},
+          "lastScrapeStartTime": {"type": "integer"},
+          "lastScrapeSucceeded": {"type": "boolean"},
+          "lastScrapeTimedOut": {"type": "boolean"},
+          "leecherCount": {"type": "integer"},
+          "nextAnnounceTime": {"type": "integer"},
+          "nextScrapeTime": {"type": "integer"},
+          "scrape": {"type": "string"},
+          "scrapeState": {"type": "integer"},
+          "seederCount": {"type": "integer"},
+          "sitename": {"type": "string"},
+          "tier": {"type": "integer"}
+        }
+      },
+      "TorrentObject": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "integer"},
+          "hashString": {"type": "string"},
+          "name": {"type": "string"},
+          "status": {"$ref": "#/components/schemas/TorrentStatus"},
+          "activityDate": {"type": "integer", "description": "Unix timestamp"},
+          "addedDate": {"type": "integer"},
+          "doneDate": {"type": "integer"},
+          "editDate": {"type": "integer"},
+          "startDate": {"type": "integer"},
+          "error": {"type": "integer"},
+          "errorString": {"type": "string"},
+          "isFinished": {"type": "boolean"},
+          "isStalled": {"type": "boolean"},
+          "percentComplete": {"type": "number", "minimum": 0, "maximum": 1},
+          "percentDone": {"type": "number", "minimum": 0, "maximum": 1},
+          "metadataPercentComplete": {"type": "number", "minimum": 0, "maximum": 1},
+          "recheckProgress": {"type": "number", "minimum": 0, "maximum": 1},
+          "rateDownload": {"type": "integer", "description": "Bytes per second"},
+          "rateUpload": {"type": "integer"},
+          "eta": {"type": "integer", "description": "Seconds"},
+          "etaIdle": {"type": "integer"},
+          "secondsDownloading": {"type": "integer"},
+          "secondsSeeding": {"type": "integer"},
+          "totalSize": {"type": "integer", "description": "Bytes"},
+          "sizeWhenDone": {"type": "integer"},
+          "bytesCompleted": {"type": "integer"},
+          "downloadedEver": {"type": "integer"},
+          "uploadedEver": {"type": "integer"},
+          "haveValid": {"type": "integer"},
+          "haveUnchecked": {"type": "integer"},
+          "corruptEver": {"type": "integer"},
+          "desiredAvailable": {"type": "integer"},
+          "leftUntilDone": {"type": "integer"},
+          "fileCount": {"type": "integer"},
+          "files": {"type": "array", "items": {"$ref": "#/components/schemas/FileObject"}},
+          "fileStats": {"type": "array", "items": {"$ref": "#/components/schemas/FileStats"}},
+          "priorities": {"type": "array", "items": {"type": "integer"}},
+          "wanted": {"type": "array", "items": {"type": "boolean"}},
+          "peers": {"type": "array", "items": {"$ref": "#/components/schemas/Peer"}},
+          "peersConnected": {"type": "integer"},
+          "peersFrom": {"$ref": "#/components/schemas/PeersFrom"},
+          "peersGettingFromUs": {"type": "integer"},
+          "peersSendingToUs": {"type": "integer"},
+          "maxConnectedPeers": {"type": "integer"},
+          "peer-limit": {"type": "integer"},
+          "trackers": {"type": "array", "items": {"$ref": "#/components/schemas/Tracker"}},
+          "trackerStats": {"type": "array", "items": {"$ref": "#/components/schemas/TrackerStats"}},
+          "trackerList": {"type": "string"},
+          "bandwidthPriority": {"type": "integer"},
+          "downloadLimit": {"type": "integer"},
+          "downloadLimited": {"type": "boolean"},
+          "uploadLimit": {"type": "integer"},
+          "uploadLimited": {"type": "boolean"},
+          "honorsSessionLimits": {"type": "boolean"},
+          "group": {"type": "string"},
+          "seedIdleLimit": {"type": "integer"},
+          "seedIdleMode": {"type": "integer"},
+          "seedRatioLimit": {"type": "number"},
+          "seedRatioMode": {"type": "integer"},
+          "magnetLink": {"type": "string"},
+          "torrentFile": {"type": "string"},
+          "comment": {"type": "string"},
+          "creator": {"type": "string"},
+          "dateCreated": {"type": "integer"},
+          "isPrivate": {"type": "boolean"},
+          "labels": {"type": "array", "items": {"type": "string"}},
+          "queuePosition": {"type": "integer"},
+          "sequential_download": {"type": "boolean"},
+          "sequential_download_from_piece": {"type": "integer"},
+          "pieces": {"type": "string", "description": "Base64-encoded bitfield"},
+          "pieceCount": {"type": "integer"},
+          "pieceSize": {"type": "integer"},
+          "availability": {"type": "array", "items": {"type": "number"}},
+          "webseeds": {"type": "array", "items": {"type": "string"}},
+          "downloadDir": {"type": "string"},
+          "primary-mime-type": {"type": "string"}
+        },
+        "description": "Complete torrent object with all available fields"
+      },
+      "TorrentGetResult": {
+        "type": "object",
+        "properties": {
+          "torrents": {
+            "type": "array",
+            "items": {"$ref": "#/components/schemas/TorrentObject"}
+          },
+          "removed": {
+            "type": "array",
+            "items": {"type": "integer"},
+            "description": "IDs of removed torrents (only with 'recently-active')"
+          }
+        },
+        "required": ["torrents"]
+      },
+      "TorrentAddedInfo": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "integer"},
+          "name": {"type": "string"},
+          "hashString": {"type": "string"}
+        },
+        "required": ["id", "name", "hashString"]
+      },
+      "TorrentAddResult": {
+        "type": "object",
+        "properties": {
+          "torrent-added": {"$ref": "#/components/schemas/TorrentAddedInfo"},
+          "torrent-duplicate": {"$ref": "#/components/schemas/TorrentAddedInfo"}
+        },
+        "description": "Result contains either torrent-added or torrent-duplicate"
+      },
+      "TorrentRenameResult": {
+        "type": "object",
+        "properties": {
+          "path": {"type": "string"},
+          "name": {"type": "string"},
+          "id": {"type": "integer"}
+        },
+        "required": ["path", "name", "id"]
+      },
+      "Stats": {
+        "type": "object",
+        "properties": {
+          "uploadedBytes": {"type": "integer"},
+          "downloadedBytes": {"type": "integer"},
+          "filesAdded": {"type": "integer"},
+          "sessionCount": {"type": "integer"},
+          "secondsActive": {"type": "integer"}
+        },
+        "required": ["uploadedBytes", "downloadedBytes", "filesAdded", "sessionCount", "secondsActive"]
+      },
+      "Units": {
+        "type": "object",
+        "properties": {
+          "speed-units": {
+            "type": "array",
+            "items": {"type": "string"},
+            "minItems": 4,
+            "maxItems": 4,
+            "description": "Speed unit labels [KB/s, MB/s, GB/s, TB/s]"
+          },
+          "speed-bytes": {"type": "integer", "description": "Bytes per speed unit (1000 or 1024)"},
+          "size-units": {"type": "array", "items": {"type": "string"}},
+          "size-bytes": {"type": "integer"},
+          "memory-units": {"type": "array", "items": {"type": "string"}},
+          "memory-bytes": {"type": "integer"}
+        }
+      },
+      "SessionInfo": {
+        "type": "object",
+        "properties": {
+          "alt-speed-down": {"type": "integer"},
+          "alt-speed-enabled": {"type": "boolean"},
+          "alt-speed-time-begin": {"type": "integer"},
+          "alt-speed-time-day": {"type": "integer"},
+          "alt-speed-time-enabled": {"type": "boolean"},
+          "alt-speed-time-end": {"type": "integer"},
+          "alt-speed-up": {"type": "integer"},
+          "blocklist-enabled": {"type": "boolean"},
+          "blocklist-size": {"type": "integer", "description": "Read-only"},
+          "blocklist-url": {"type": "string"},
+          "cache-size-mb": {"type": "integer"},
+          "config-dir": {"type": "string", "description": "Read-only"},
+          "default-trackers": {"type": "string"},
+          "dht-enabled": {"type": "boolean"},
+          "download-dir": {"type": "string"},
+          "download-queue-enabled": {"type": "boolean"},
+          "download-queue-size": {"type": "integer"},
+          "encryption": {"$ref": "#/components/schemas/EncryptionMode"},
+          "idle-seeding-limit-enabled": {"type": "boolean"},
+          "idle-seeding-limit": {"type": "integer"},
+          "incomplete-dir-enabled": {"type": "boolean"},
+          "incomplete-dir": {"type": "string"},
+          "lpd-enabled": {"type": "boolean"},
+          "peer-limit-global": {"type": "integer"},
+          "peer-limit-per-torrent": {"type": "integer"},
+          "peer-port-random-on-start": {"type": "boolean"},
+          "peer-port": {"type": "integer"},
+          "pex-enabled": {"type": "boolean"},
+          "port-forwarding-enabled": {"type": "boolean"},
+          "preferred_transports": {"type": "array", "items": {"type": "string"}},
+          "queue-stalled-enabled": {"type": "boolean"},
+          "queue-stalled-minutes": {"type": "integer"},
+          "rename-partial-files": {"type": "boolean"},
+          "reqq": {"type": "integer"},
+          "rpc-version": {"type": "integer", "description": "Read-only"},
+          "rpc-version-minimum": {"type": "integer", "description": "Read-only"},
+          "rpc-version-semver": {"type": "string", "description": "Read-only"},
+          "script-torrent-added-enabled": {"type": "boolean"},
+          "script-torrent-added-filename": {"type": "string"},
+          "script-torrent-done-enabled": {"type": "boolean"},
+          "script-torrent-done-filename": {"type": "string"},
+          "script-torrent-done-seeding-enabled": {"type": "boolean"},
+          "script-torrent-done-seeding-filename": {"type": "string"},
+          "seed-queue-enabled": {"type": "boolean"},
+          "seed-queue-size": {"type": "integer"},
+          "seedRatioLimit": {"type": "number"},
+          "seedRatioLimited": {"type": "boolean"},
+          "sequential_download": {"type": "boolean"},
+          "session-id": {"type": "string", "description": "Read-only"},
+          "speed-limit-down-enabled": {"type": "boolean"},
+          "speed-limit-down": {"type": "integer"},
+          "speed-limit-up-enabled": {"type": "boolean"},
+          "speed-limit-up": {"type": "integer"},
+          "start-added-torrents": {"type": "boolean"},
+          "trash-original-torrent-files": {"type": "boolean"},
+          "units": {"$ref": "#/components/schemas/Units", "description": "Read-only"},
+          "version": {"type": "string", "description": "Read-only"}
+        },
+        "description": "Session configuration and read-only information"
+      },
+      "SessionStats": {
+        "type": "object",
+        "properties": {
+          "activeTorrentCount": {"type": "integer"},
+          "downloadSpeed": {"type": "integer", "description": "Bytes per second"},
+          "pausedTorrentCount": {"type": "integer"},
+          "torrentCount": {"type": "integer"},
+          "uploadSpeed": {"type": "integer", "description": "Bytes per second"},
+          "cumulative-stats": {"$ref": "#/components/schemas/Stats"},
+          "current-stats": {"$ref": "#/components/schemas/Stats"}
+        },
+        "required": ["activeTorrentCount", "downloadSpeed", "pausedTorrentCount", "torrentCount", "uploadSpeed", "cumulative-stats", "current-stats"]
+      },
+      "PortTestResult": {
+        "type": "object",
+        "properties": {
+          "port-is-open": {"type": "boolean"},
+          "ip_protocol": {"$ref": "#/components/schemas/IpProtocol"}
+        },
+        "required": ["port-is-open"]
+      },
+      "FreeSpaceResult": {
+        "type": "object",
+        "properties": {
+          "path": {"type": "string"},
+          "size-bytes": {"type": "integer", "description": "Free space in bytes"},
+          "total_size": {"type": "integer", "description": "Total capacity in bytes"}
+        },
+        "required": ["path", "size-bytes"]
+      },
+      "BandwidthGroup": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string"},
+          "honorsSessionLimits": {"type": "boolean"},
+          "speed-limit-down-enabled": {"type": "boolean"},
+          "speed-limit-down": {"type": "integer"},
+          "speed-limit-up-enabled": {"type": "boolean"},
+          "speed-limit-up": {"type": "integer"}
+        },
+        "required": ["name"]
+      }
+    }
+  },
+  "externalDocs": {
+    "description": "Official Transmission RPC Specification",
+    "url": "https://github.com/transmission/transmission/blob/main/docs/rpc-spec.md"
+  }
+}

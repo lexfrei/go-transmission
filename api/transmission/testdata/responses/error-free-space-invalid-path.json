@@ -1,0 +1,8 @@
+{
+  "arguments": {
+    "path": "/nonexistent/path",
+    "size-bytes": -1,
+    "total_size": -1
+  },
+  "result": "No such file or directory"
+}

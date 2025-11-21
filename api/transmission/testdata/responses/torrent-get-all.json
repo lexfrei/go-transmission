@@ -1,0 +1,13 @@
+{
+  "arguments": {
+    "torrents": [
+      {
+        "hashString": "a1dfefec1a9dd7fa8a041ebeeea271db55126d2f",
+        "id": 3,
+        "name": "ubuntu-24.04.3-live-server-amd64.iso",
+        "status": 2
+      }
+    ]
+  },
+  "result": "success"
+}
