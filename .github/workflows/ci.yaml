@@ -58,6 +58,8 @@ jobs:
   e2e:
     name: E2E Tests
     runs-on: ubuntu-latest
+    needs: [lint, test, build, verify]
+    if: contains(github.event.pull_request.labels.*.name, 'ready-for-e2e')
 
     steps:
       - name: Checkout code
