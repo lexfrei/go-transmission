@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"sync/atomic"
+	"time"
 
 	"github.com/cockroachdb/errors"
 )
@@ -42,6 +43,7 @@ type httpTransport struct {
 	password  string
 	sessionID atomic.Value // string
 	tagSeq    atomic.Int64
+	logger    Logger
 }
 
 // newHTTPTransport creates a new HTTP transport.
@@ -62,6 +64,7 @@ func newHTTPTransport(cfg *config) (*httpTransport, error) {
 		url:      cfg.url,
 		username: cfg.username,
 		password: cfg.password,
+		logger:   cfg.logger,
 	}
 
 	return transport, nil
@@ -69,65 +72,115 @@ func newHTTPTransport(cfg *config) (*httpTransport, error) {
 
 // Do performs a JSON-RPC request with automatic CSRF handling.
 func (t *httpTransport) Do(ctx context.Context, method string, args any) (json.RawMessage, error) {
-	// Build request
 	tag := t.tagSeq.Add(1)
-	reqBody := rpcRequest{
-		Method:    method,
-		Arguments: args,
-		Tag:       tag,
-	}
 
-	body, err := json.Marshal(reqBody)
-	if err != nil {
-		return nil, errors.Wrap(err, ErrMarshalRequest.Error())
-	}
-
-	// First attempt
-	resp, err := t.doRequest(ctx, body)
+	body, err := t.marshalRequest(method, args, tag)
 	if err != nil {
 		return nil, err
 	}
 
-	// Handle CSRF (HTTP 409)
-	if resp.StatusCode == http.StatusConflict {
-		// Extract session ID from response
-		sessionID := resp.Header.Get(sessionIDHeader)
-		_ = resp.Body.Close()
+	t.logger.Debug("sending RPC request", Field{Key: "method", Value: method}, Field{Key: "tag", Value: tag})
 
-		if sessionID == "" {
-			return nil, errors.WithStack(ErrCSRFMissing)
-		}
+	start := time.Now()
 
-		// Store session ID and retry
-		t.sessionID.Store(sessionID)
-		resp, err = t.doRequest(ctx, body)
-		if err != nil {
-			return nil, err
-		}
+	resp, err := t.doRequestWithCSRF(ctx, method, body)
+	if err != nil {
+		return nil, err
 	}
 	defer func() { _ = resp.Body.Close() }()
 
-	// Check HTTP status
+	return t.handleResponse(resp, method, start)
+}
+
+// marshalRequest builds and marshals an RPC request.
+func (t *httpTransport) marshalRequest(method string, args any, tag int64) ([]byte, error) {
+	reqBody := rpcRequest{Method: method, Arguments: args, Tag: tag}
+
+	body, err := json.Marshal(reqBody)
+	if err != nil {
+		t.logger.Error("failed to marshal request",
+			Field{Key: "method", Value: method}, Field{Key: "error", Value: err.Error()})
+
+		return nil, errors.Wrap(err, ErrMarshalRequest.Error())
+	}
+
+	return body, nil
+}
+
+// doRequestWithCSRF performs request with automatic CSRF retry.
+func (t *httpTransport) doRequestWithCSRF(ctx context.Context, method string, body []byte) (*http.Response, error) {
+	resp, err := t.doRequest(ctx, body)
+	if err != nil {
+		t.logger.Error("HTTP request failed", Field{Key: "method", Value: method}, Field{Key: "error", Value: err.Error()})
+
+		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusConflict {
+		return resp, nil
+	}
+
+	// Handle CSRF (HTTP 409)
+	sessionID := resp.Header.Get(sessionIDHeader)
+	_ = resp.Body.Close()
+
+	if sessionID == "" {
+		t.logger.Error("CSRF session ID missing in 409 response", Field{Key: "method", Value: method})
+
+		return nil, errors.WithStack(ErrCSRFMissing)
+	}
+
+	t.logger.Debug("received new CSRF session ID, retrying request", Field{Key: "method", Value: method})
+	t.sessionID.Store(sessionID)
+
+	resp, err = t.doRequest(ctx, body)
+	if err != nil {
+		t.logger.Error("HTTP request failed after CSRF retry",
+			Field{Key: "method", Value: method}, Field{Key: "error", Value: err.Error()})
+
+		return nil, err
+	}
+
+	return resp, nil
+}
+
+// handleResponse processes the HTTP response and extracts RPC result.
+func (t *httpTransport) handleResponse(resp *http.Response, method string, start time.Time) (json.RawMessage, error) {
+	duration := time.Since(start)
+
 	if resp.StatusCode != http.StatusOK {
+		t.logger.Error("unexpected HTTP status",
+			Field{Key: "method", Value: method}, Field{Key: "status", Value: resp.StatusCode},
+			Field{Key: "duration_ms", Value: duration.Milliseconds()})
+
 		return nil, NewHTTPError(resp.StatusCode, resp.Status)
 	}
 
-	// Read response body
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
+		t.logger.Error("failed to read response body",
+			Field{Key: "method", Value: method}, Field{Key: "error", Value: err.Error()})
+
 		return nil, errors.Wrap(err, ErrReadResponse.Error())
 	}
 
-	// Parse response
 	var rpcResp rpcResponse
 	if err := json.Unmarshal(respBody, &rpcResp); err != nil {
+		t.logger.Error("failed to unmarshal response",
+			Field{Key: "method", Value: method}, Field{Key: "error", Value: err.Error()})
+
 		return nil, errors.Wrap(err, ErrUnmarshalResponse.Error())
 	}
 
-	// Check RPC result
 	if rpcResp.Result != "success" {
+		t.logger.Error("RPC error", Field{Key: "method", Value: method},
+			Field{Key: "result", Value: rpcResp.Result}, Field{Key: "duration_ms", Value: duration.Milliseconds()})
+
 		return nil, NewRPCError(rpcResp.Result)
 	}
+
+	t.logger.Debug("RPC request completed",
+		Field{Key: "method", Value: method}, Field{Key: "duration_ms", Value: duration.Milliseconds()})
 
 	return rpcResp.Arguments, nil
 }

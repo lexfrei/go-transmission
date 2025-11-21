@@ -79,6 +79,42 @@ client, err := transmission.New(
 )
 ```
 
+## Logging
+
+Inject a custom logger implementing the `Logger` interface:
+
+```go
+// Logger interface
+type Logger interface {
+    Debug(msg string, fields ...Field)
+    Warn(msg string, fields ...Field)
+    Error(msg string, fields ...Field)
+}
+
+// Example: slog adapter
+type slogAdapter struct {
+    logger *slog.Logger
+}
+
+func (s *slogAdapter) Debug(msg string, fields ...transmission.Field) {
+    s.logger.Debug(msg, fieldsToAttrs(fields)...)
+}
+
+func (s *slogAdapter) Warn(msg string, fields ...transmission.Field) {
+    s.logger.Warn(msg, fieldsToAttrs(fields)...)
+}
+
+func (s *slogAdapter) Error(msg string, fields ...transmission.Field) {
+    s.logger.Error(msg, fieldsToAttrs(fields)...)
+}
+
+// Use with client
+client, err := transmission.New(
+    "http://localhost:9091/transmission/rpc",
+    transmission.WithLogger(&slogAdapter{logger: slog.Default()}),
+)
+```
+
 ## API Methods
 
 ### Torrent Actions

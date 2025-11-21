@@ -265,7 +265,8 @@ type client struct {
 // New creates a new Transmission RPC client.
 func New(url string, opts ...Option) (Client, error) {
 	cfg := &config{
-		url: url,
+		url:    url,
+		logger: NoopLogger(),
 	}
 
 	for _, opt := range opts {
@@ -274,6 +275,10 @@ func New(url string, opts ...Option) (Client, error) {
 
 	if cfg.url == "" {
 		return nil, ErrInvalidURL
+	}
+
+	if cfg.logger == nil {
+		cfg.logger = NoopLogger()
 	}
 
 	transport, err := newHTTPTransport(cfg)

@@ -4,11 +4,38 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"log/slog"
 	"os"
 	"time"
 
 	"github.com/lexfrei/go-transmission/api/transmission"
 )
+
+// slogAdapter adapts slog.Logger to transmission.Logger interface.
+type slogAdapter struct {
+	logger *slog.Logger
+}
+
+func (s *slogAdapter) Debug(msg string, fields ...transmission.Field) {
+	s.logger.Debug(msg, fieldsToAttrs(fields)...)
+}
+
+func (s *slogAdapter) Warn(msg string, fields ...transmission.Field) {
+	s.logger.Warn(msg, fieldsToAttrs(fields)...)
+}
+
+func (s *slogAdapter) Error(msg string, fields ...transmission.Field) {
+	s.logger.Error(msg, fieldsToAttrs(fields)...)
+}
+
+func fieldsToAttrs(fields []transmission.Field) []any {
+	attrs := make([]any, 0, len(fields)*2)
+	for _, f := range fields {
+		attrs = append(attrs, f.Key, f.Value)
+	}
+
+	return attrs
+}
 
 func main() {
 	// Get URL from environment or use default
@@ -17,6 +44,11 @@ func main() {
 		url = "http://localhost:9091/transmission/rpc"
 	}
 
+	// Create slog logger
+	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
+		Level: slog.LevelDebug,
+	}))
+
 	// Create client with optional authentication
 	var opts []transmission.Option
 	if user := os.Getenv("TRANSMISSION_USER"); user != "" {
@@ -24,6 +56,7 @@ func main() {
 		opts = append(opts, transmission.WithAuth(user, pass))
 	}
 	opts = append(opts, transmission.WithTimeout(30*time.Second))
+	opts = append(opts, transmission.WithLogger(&slogAdapter{logger: logger}))
 
 	client, err := transmission.New(url, opts...)
 	if err != nil {

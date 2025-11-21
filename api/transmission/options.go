@@ -12,6 +12,7 @@ type config struct {
 	password   string
 	timeout    time.Duration
 	httpClient *http.Client
+	logger     Logger
 }
 
 // Option is a function that configures the client.
@@ -38,5 +39,13 @@ func WithTimeout(timeout time.Duration) Option {
 func WithHTTPClient(httpClient *http.Client) Option {
 	return func(c *config) {
 		c.httpClient = httpClient
+	}
+}
+
+// WithLogger sets a custom logger.
+// If not set, a no-op logger is used.
+func WithLogger(logger Logger) Option {
+	return func(c *config) {
+		c.logger = logger
 	}
 }
