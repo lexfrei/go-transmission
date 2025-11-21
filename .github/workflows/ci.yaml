@@ -76,7 +76,7 @@ jobs:
         run: go mod download
 
       - name: Run e2e tests
-        run: go test -v -tags=e2e -timeout=10m ./api/transmission/...
+        run: go test -v -tags=e2e -count=1 -timeout=10m ./api/transmission/...
 
   build:
     name: Build
