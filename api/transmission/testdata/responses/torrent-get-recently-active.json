@@ -1,0 +1,15 @@
+{
+  "arguments": {
+    "removed": [
+      1,
+      2
+    ],
+    "torrents": [
+      {
+        "id": 3,
+        "name": "ubuntu-24.04.3-live-server-amd64.iso"
+      }
+    ]
+  },
+  "result": "success"
+}
