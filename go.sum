@@ -124,10 +124,10 @@ github.com/tklauser/go-sysconf v0.3.16 h1:frioLaCQSsF5Cy1jgRBrzr6t502KIIwQ0MArYI
 github.com/tklauser/go-sysconf v0.3.16/go.mod h1:/qNL9xxDhc7tx3HSRsLWNnuzbVfh3e7gh/BmM179nYI=
 github.com/tklauser/numcpus v0.11.0 h1:nSTwhKH5e1dMNsCdVBukSZrURJRoHbSEQjdEbY+9RXw=
 github.com/tklauser/numcpus v0.11.0/go.mod h1:z+LwcLq54uWZTX0u/bGobaV34u6V7KNlTZejzM6/3MQ=
-github.com/ymz-ncnk/assert v0.0.0-20250528151733-c41b2fca7933 h1:V48ApBa/TSsGNKnIapVQs1q/5+HAaOk51b24L8yuPpA=
-github.com/ymz-ncnk/assert v0.0.0-20250528151733-c41b2fca7933/go.mod h1:+lSOTrCyOPuvc0xuvK4uKhgQ0Ar3U/HJPpJZg73kvgE=
-github.com/ymz-ncnk/mok v0.2.1 h1:rx/QVO4W2d3s6g1Q2tVeIndD0Yhc66pVJRB2RHpXWSo=
-github.com/ymz-ncnk/mok v0.2.1/go.mod h1:BYggihmf3kEBo7HfDVwDEqZ08gO8og8o5fcd8xuPmu0=
+github.com/ymz-ncnk/assert v0.0.0-20260108210721-155bc9aa4282 h1:lU0oPVPOGW0BZwLwAqfSTh1yxhFbwXDv/UAYY54QTq0=
+github.com/ymz-ncnk/assert v0.0.0-20260108210721-155bc9aa4282/go.mod h1:+lSOTrCyOPuvc0xuvK4uKhgQ0Ar3U/HJPpJZg73kvgE=
+github.com/ymz-ncnk/mok v0.2.2 h1:MkHkli+n3Ci6Xla9e/6LApJZ6/XjLB6AB3IXDr9a7hk=
+github.com/ymz-ncnk/mok v0.2.2/go.mod h1:oG5QOzlimZyay1H6edXmCSd7YmcRhAm1j7qC8QcmWzM=
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yusufpapurcu/wmi v1.2.4 h1:zFUKzehAFReQwLys1b/iSMl+JQGSCSjtVqQn9bBrPo0=

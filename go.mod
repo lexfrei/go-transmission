@@ -1,12 +1,12 @@
 module github.com/lexfrei/go-transmission
 
-go 1.25.4
+go 1.26.1
 
 require (
 	github.com/cockroachdb/errors v1.12.0
 	github.com/stretchr/testify v1.11.1
 	github.com/testcontainers/testcontainers-go v0.40.0
-	github.com/ymz-ncnk/mok v0.2.1
+	github.com/ymz-ncnk/mok v0.2.2
 )
 
 require (
