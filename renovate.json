@@ -25,8 +25,9 @@
   },
   "packageRules": [
     {
-      "description": "Automerge safe non-major updates",
+      "description": "Automerge all updates including major",
       "matchUpdateTypes": [
+        "major",
         "minor",
         "patch",
         "digest",
@@ -35,16 +36,6 @@
       "automerge": true,
       "automergeType": "pr",
       "platformAutomerge": true
-    },
-    {
-      "description": "Do not automerge major updates",
-      "matchUpdateTypes": [
-        "major"
-      ],
-      "automerge": false,
-      "labels": [
-        "major-update"
-      ]
     },
     {
       "description": "Keep go directive in go.mod updated",
