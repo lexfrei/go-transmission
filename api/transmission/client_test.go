@@ -12,6 +12,13 @@ import (
 
 const testMetainfo = "dGVzdA==" // base64 "test"
 
+// testFieldID and testFieldName are the torrent fields requested across
+// the get tests.
+const (
+	testFieldID   = "id"
+	testFieldName = "name"
+)
+
 //go:embed testdata/responses/session-get.json
 var sessionGetResponse string
 
@@ -307,7 +314,7 @@ func TestTorrentGet(t *testing.T) {
 		client, err := newTestClient(mock)
 		require.NoError(t, err)
 
-		result, err := client.TorrentGet(context.Background(), []string{"id", "name"}, nil)
+		result, err := client.TorrentGet(context.Background(), []string{testFieldID, testFieldName}, nil)
 		require.NoError(t, err)
 		assert.NotEmpty(t, result.Torrents)
 	})
@@ -327,7 +334,7 @@ func TestTorrentGet(t *testing.T) {
 		client, err := newTestClient(mock)
 		require.NoError(t, err)
 
-		result, err := client.TorrentGet(context.Background(), []string{"id", "name"}, []int64{1})
+		result, err := client.TorrentGet(context.Background(), []string{testFieldID, testFieldName}, []int64{1})
 		require.NoError(t, err)
 		assert.NotEmpty(t, result.Torrents)
 	})
@@ -346,7 +353,7 @@ func TestTorrentGet(t *testing.T) {
 		client, err := newTestClient(mock)
 		require.NoError(t, err)
 
-		result, err := client.TorrentGet(context.Background(), []string{"id", "name"}, []int64{99999})
+		result, err := client.TorrentGet(context.Background(), []string{testFieldID, testFieldName}, []int64{99999})
 		require.NoError(t, err)
 		assert.Empty(t, result.Torrents)
 	})
@@ -365,7 +372,7 @@ func TestTorrentGet(t *testing.T) {
 		client, err := newTestClient(mock)
 		require.NoError(t, err)
 
-		result, err := client.TorrentGetRecentlyActive(context.Background(), []string{"id", "name"})
+		result, err := client.TorrentGetRecentlyActive(context.Background(), []string{testFieldID, testFieldName})
 		require.NoError(t, err)
 		assert.NotNil(t, result)
 	})

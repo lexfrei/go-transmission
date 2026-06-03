@@ -53,5 +53,15 @@
       "automergeType": "pr",
       "platformAutomerge": true
     }
+  ],
+  "customManagers": [
+    {
+      "description": "Bump tool versions annotated with a renovate comment in workflows",
+      "customType": "regex",
+      "fileMatch": ["\\.github/workflows/.*\\.ya?ml$"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*)\\n.*?[\"']?(?<currentValue>v?\\d+\\.\\d+\\.\\d+)[\"']?"
+      ]
+    }
   ]
 }

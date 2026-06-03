@@ -19,6 +19,11 @@ const (
 
 	// contentType is the content type for JSON-RPC requests.
 	contentType = "application/json"
+
+	// Log field keys for the structured request/response trace.
+	logKeyMethod     = "method"
+	logKeyError      = "error"
+	logKeyDurationMS = "duration_ms"
 )
 
 // rpcRequest represents a JSON-RPC request to Transmission.
@@ -79,7 +84,7 @@ func (t *httpTransport) Do(ctx context.Context, method string, args any) (json.R
 		return nil, err
 	}
 
-	t.logger.Debug("sending RPC request", Field{Key: "method", Value: method}, Field{Key: "tag", Value: tag})
+	t.logger.Debug("sending RPC request", Field{Key: logKeyMethod, Value: method}, Field{Key: "tag", Value: tag})
 
 	start := time.Now()
 
@@ -99,7 +104,7 @@ func (t *httpTransport) marshalRequest(method string, args any, tag int64) ([]by
 	body, err := json.Marshal(reqBody)
 	if err != nil {
 		t.logger.Error("failed to marshal request",
-			Field{Key: "method", Value: method}, Field{Key: "error", Value: err.Error()})
+			Field{Key: logKeyMethod, Value: method}, Field{Key: logKeyError, Value: err.Error()})
 
 		return nil, errors.Wrap(err, ErrMarshalRequest.Error())
 	}
@@ -111,7 +116,7 @@ func (t *httpTransport) marshalRequest(method string, args any, tag int64) ([]by
 func (t *httpTransport) doRequestWithCSRF(ctx context.Context, method string, body []byte) (*http.Response, error) {
 	resp, err := t.doRequest(ctx, body)
 	if err != nil {
-		t.logger.Error("HTTP request failed", Field{Key: "method", Value: method}, Field{Key: "error", Value: err.Error()})
+		t.logger.Error("HTTP request failed", Field{Key: logKeyMethod, Value: method}, Field{Key: logKeyError, Value: err.Error()})
 
 		return nil, err
 	}
@@ -125,18 +130,18 @@ func (t *httpTransport) doRequestWithCSRF(ctx context.Context, method string, bo
 	_ = resp.Body.Close()
 
 	if sessionID == "" {
-		t.logger.Error("CSRF session ID missing in 409 response", Field{Key: "method", Value: method})
+		t.logger.Error("CSRF session ID missing in 409 response", Field{Key: logKeyMethod, Value: method})
 
 		return nil, errors.WithStack(ErrCSRFMissing)
 	}
 
-	t.logger.Debug("received new CSRF session ID, retrying request", Field{Key: "method", Value: method})
+	t.logger.Debug("received new CSRF session ID, retrying request", Field{Key: logKeyMethod, Value: method})
 	t.sessionID.Store(sessionID)
 
 	resp, err = t.doRequest(ctx, body)
 	if err != nil {
 		t.logger.Error("HTTP request failed after CSRF retry",
-			Field{Key: "method", Value: method}, Field{Key: "error", Value: err.Error()})
+			Field{Key: logKeyMethod, Value: method}, Field{Key: logKeyError, Value: err.Error()})
 
 		return nil, err
 	}
@@ -150,8 +155,8 @@ func (t *httpTransport) handleResponse(resp *http.Response, method string, start
 
 	if resp.StatusCode != http.StatusOK {
 		t.logger.Error("unexpected HTTP status",
-			Field{Key: "method", Value: method}, Field{Key: "status", Value: resp.StatusCode},
-			Field{Key: "duration_ms", Value: duration.Milliseconds()})
+			Field{Key: logKeyMethod, Value: method}, Field{Key: "status", Value: resp.StatusCode},
+			Field{Key: logKeyDurationMS, Value: duration.Milliseconds()})
 
 		return nil, NewHTTPError(resp.StatusCode, resp.Status)
 	}
@@ -159,7 +164,7 @@ func (t *httpTransport) handleResponse(resp *http.Response, method string, start
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		t.logger.Error("failed to read response body",
-			Field{Key: "method", Value: method}, Field{Key: "error", Value: err.Error()})
+			Field{Key: logKeyMethod, Value: method}, Field{Key: logKeyError, Value: err.Error()})
 
 		return nil, errors.Wrap(err, ErrReadResponse.Error())
 	}
@@ -167,20 +172,20 @@ func (t *httpTransport) handleResponse(resp *http.Response, method string, start
 	var rpcResp rpcResponse
 	if err := json.Unmarshal(respBody, &rpcResp); err != nil {
 		t.logger.Error("failed to unmarshal response",
-			Field{Key: "method", Value: method}, Field{Key: "error", Value: err.Error()})
+			Field{Key: logKeyMethod, Value: method}, Field{Key: logKeyError, Value: err.Error()})
 
 		return nil, errors.Wrap(err, ErrUnmarshalResponse.Error())
 	}
 
 	if rpcResp.Result != "success" {
-		t.logger.Error("RPC error", Field{Key: "method", Value: method},
-			Field{Key: "result", Value: rpcResp.Result}, Field{Key: "duration_ms", Value: duration.Milliseconds()})
+		t.logger.Error("RPC error", Field{Key: logKeyMethod, Value: method},
+			Field{Key: "result", Value: rpcResp.Result}, Field{Key: logKeyDurationMS, Value: duration.Milliseconds()})
 
 		return nil, NewRPCError(rpcResp.Result)
 	}
 
 	t.logger.Debug("RPC request completed",
-		Field{Key: "method", Value: method}, Field{Key: "duration_ms", Value: duration.Milliseconds()})
+		Field{Key: logKeyMethod, Value: method}, Field{Key: logKeyDurationMS, Value: duration.Milliseconds()})
 
 	return rpcResp.Arguments, nil
 }
