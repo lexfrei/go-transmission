@@ -9,6 +9,9 @@ import (
 	"github.com/ymz-ncnk/mok"
 )
 
+// testSessionID is the CSRF session id used across the mock responses.
+const testSessionID = "test-session-id"
+
 // RoundTripperMock is a mock for http.RoundTripper.
 type RoundTripperMock struct {
 	mock *mok.Mock
@@ -48,8 +51,8 @@ func jsonResponse(body string) *http.Response {
 	return &http.Response{
 		StatusCode: http.StatusOK,
 		Header: http.Header{
-			"Content-Type":              []string{"application/json"},
-			"X-Transmission-Session-Id": []string{"test-session-id"},
+			"Content-Type":  []string{"application/json"},
+			sessionIDHeader: []string{testSessionID},
 		},
 		Body: io.NopCloser(bytes.NewBufferString(body)),
 	}
@@ -60,7 +63,7 @@ func sessionIDResponse() *http.Response {
 	return &http.Response{
 		StatusCode: http.StatusConflict,
 		Header: http.Header{
-			"X-Transmission-Session-Id": []string{"test-session-id"},
+			sessionIDHeader: []string{testSessionID},
 		},
 		Body: io.NopCloser(bytes.NewBufferString("")),
 	}
