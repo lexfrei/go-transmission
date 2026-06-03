@@ -1,6 +1,6 @@
 module github.com/lexfrei/go-transmission
 
-go 1.26.2
+go 1.26.4
 
 require (
 	github.com/cockroachdb/errors v1.13.0
