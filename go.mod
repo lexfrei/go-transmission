@@ -3,7 +3,7 @@ module github.com/lexfrei/go-transmission
 go 1.26.4
 
 require (
-	github.com/cockroachdb/errors v1.13.0
+	github.com/cockroachdb/errors v1.14.0
 	github.com/stretchr/testify v1.11.1
 	github.com/testcontainers/testcontainers-go v0.42.0
 	github.com/ymz-ncnk/mok v0.2.2
